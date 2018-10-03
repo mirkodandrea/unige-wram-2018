@@ -14,3 +14,5 @@ verify_ssl = true
 jupyterlab = "*"
 numpy = "*"
 matplotlib = "*"
+ipympl = "*"
+pandas = "*"
