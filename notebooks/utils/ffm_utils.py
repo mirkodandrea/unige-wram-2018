@@ -33,7 +33,9 @@ def run_simulation(X, n_frames, func):
     n_trees = np.nan * np.ones((n_frames,))
     n_trees[0] = np.sum(X == TREE)
     pl,  = ax2.plot(np.arange(n_frames), n_trees)#, interpolation='nearest')
-
+    ax2.set_xlabel('iteration')
+    ax2.set_ylabel('# of trees')    
+    
     bar = PB(min_value=0, max_value=n_frames)
     # The animation function: called to produce a frame for each generation.
     def animate(i):
