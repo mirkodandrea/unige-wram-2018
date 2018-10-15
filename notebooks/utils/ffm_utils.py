@@ -4,17 +4,20 @@ import matplotlib.pyplot as plt
 from numpy.random import random
 from matplotlib import animation
 from matplotlib import colors
+from itertools import chain
+
 
 from IPython.core.display import display, HTML
 from progressbar import ProgressBar as PB
 
 EMPTY, TREE, FIRE = 0, 1, 2
 
-def run_simulation(X, n_frames, func):
-    '''
-    initialize a simulation and returns an animatee object to 
-    be used with run_and_display
-    '''
+def run_simulation(X, n_frames, grow_func, ignite_func, burn_func):
+    """
+    calls the function "grow_func", "ignite_func" and "burn_func" on X n_frames times.
+    Overwrites the X matrice, and plots the result as animation.
+    Returns a list of wildfire burned area for each iteration.
+    """
     # Colours for visualization: brown for EMPTY, dark green for TREE and orange
     # for FIRE. Note that for the colormap to work, this list and the bounds list
     # must be one larger than the number of different values in the array.
@@ -23,6 +26,7 @@ def run_simulation(X, n_frames, func):
     bounds = [0,1,2,3]
     norm = colors.BoundaryNorm(bounds, cmap.N)
     
+    burned_list = []
     
     fig = plt.figure(figsize=(15, 8))
     ax1 = fig.add_subplot(121)
@@ -41,9 +45,15 @@ def run_simulation(X, n_frames, func):
     def animate(i):
         bar.update(i)
         im.set_data(animate.X)
-        animate.X = func(animate.X)
-
+        
+        grow_func(animate.X)
+        ignite_func(animate.X)
+        burned = burn_func(animate.X)
+        
+        burned_list.append(burned)
+        
         animate.n_trees[i] = np.sum(animate.X == TREE)
+        
         ax2.plot(np.arange(n_frames), animate.n_trees, 'r')
         ax2.set_xlim(0, n_frames)
         ax2.set_ylim(0, np.multiply(*animate.X.shape))
@@ -54,3 +64,11 @@ def run_simulation(X, n_frames, func):
     anim = animation.FuncAnimation(fig, animate, frames=n_frames)
     
     display(HTML(anim.to_jshtml(fps=10)))
+    
+    return burned_list
+
+
+
+def flattern(list_of_list):
+    """flatterns a list of list and return a 1D array"""
+    return np.array(list(chain(*list_of_list)))
